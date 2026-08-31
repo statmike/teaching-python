@@ -1,0 +1,82 @@
+[project]
+name = "teach"
+version = "0.1.0"
+description = "Teaching Python with statistics concepts"
+authors = [{ name = "Mike Henderson", email = "statmike@gmail.com" }]
+readme = "readme.md"
+requires-python = ">=3.13,<4.0"
+# The DEFAULT install is CPU-only and works everywhere the notebook is supported:
+# Linux (x86_64 + arm64), Windows x64, and macOS on Apple Silicon. GPU support is
+# opt-in via the extras below, so nobody downloads a GPU stack they can't use.
+# (jax is pinned to 0.10.x because the Apple-Silicon plugin jax-mps is built
+# against jaxlib 0.10.x and won't attach to other versions.)
+dependencies = [
+    "matplotlib>=3.10.7",
+    "numpy>=2.3.4",
+    "jax>=0.10,<0.11",
+    "jaxlib>=0.10,<0.11",
+]
+
+[project.optional-dependencies]
+# NVIDIA GPU on Linux x86_64.  uv sync --extra gpu-nvidia
+# Ships its own CUDA libraries (~4.5 GB), which is exactly why it isn't a default.
+# LINUX ONLY, and that marker is not a nicety: jax-cuda12-plugin publishes manylinux
+# wheels and nothing else, so there is no such thing as CUDA JAX on native Windows.
+# Running this extra on Windows installs nothing and prints no warning - which is
+# exactly how a Windows user with an RTX card ends up quietly running on the CPU.
+# The Windows paths to a GPU are WSL2 or Colab; both are in the readme.
+gpu-nvidia = [
+    "jax[cuda12]>=0.10,<0.11 ; sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+# Apple Silicon GPU via the Metal plugin.  uv sync --extra gpu-apple
+# Requires macOS 14+ (the only wheels published are macosx_14_0_arm64). Keeping it
+# out of the defaults is what lets macOS 11-13 install the notebook at all.
+gpu-apple = [
+    "jax-mps>=0.10.10 ; sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
+# AMD GPU on Linux.  uv sync --extra gpu-amd
+# NOTE: "-local" means JAX expects a ROCm 7 toolkit already installed system-wide;
+# unlike the NVIDIA extra it does not ship one. Untested here.
+gpu-amd = [
+    "jax[rocm7-local]>=0.10,<0.11 ; sys_platform == 'linux'",
+]
+
+[dependency-groups]
+# Installed by a plain `uv sync`. ipykernel is what makes this environment a kernel
+# VS Code / Jupyter / Colab can attach to; taskipy runs the shortcut below. That is
+# genuinely all that is required.
+# NOT here on purpose: jupyterlab. Only one of the three ways to open the notebook
+# needs it (VS Code and Colab do not), and it costs ~100 MB. The readme reaches it
+# with `uv run --with jupyterlab jupyter lab`, which layers it over this environment
+# on demand instead of taxing every install.
+dev = [
+    "taskipy>=1.14.1",
+    "ipykernel>=6.30.1",
+]
+
+[tool.uv]
+# Not an installable package — just an environment for the notebook.
+package = false
+# Fully uv-managed: only use uv's own downloaded Python builds, never a
+# system/Homebrew/pyenv interpreter. Keeps the environment reproducible.
+python-preference = "only-managed"
+
+# No requirements.txt tasks: uv.lock is the committed source of truth for local
+# work, and Colab needs no install at all (it ships numpy, matplotlib, and a
+# CUDA-matched JAX). Exporting pinned CPU-only jax/jaxlib for Colab actively
+# broke its GPU runtime, so those tasks were removed rather than fixed.
+
+# NOTE: double quotes around the display name, not single. taskipy hands this string
+# to the platform shell, and on Windows that is cmd.exe - where ' is not a quote
+# character and ( ) ARE special, so the single-quoted version failed with a syntax
+# error. Double quotes are the one form every shell here agrees on.
+[tool.taskipy.tasks.kernel]
+cmd = 'uv run python -m ipykernel install --user --name teach --display-name "Python (teach)"'
+help = "Registers the uv environment as a Jupyter kernel named for the project."
+
+#FUTURE
+#lint = "uv run ruff check ."
+#format = "uv run ruff format ."
+#types = "uv run mypy ."
+#test = "uv run pytest"
+#all_checks = "task lint && task types && task test"
