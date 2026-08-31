@@ -4,6 +4,8 @@ version = "0.1.0"
 description = "Teaching Python with statistics concepts"
 authors = [{ name = "Mike Henderson", email = "statmike@gmail.com" }]
 readme = "readme.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.13,<4.0"
 # The DEFAULT install is CPU-only and works everywhere the notebook is supported:
 # Linux (x86_64 + arm64), Windows x64, and macOS on Apple Silicon. GPU support is

@@ -1,4 +1,4 @@
-# Teach
+# Teaching Python
 
 Teaching Python to high schoolers through statistics and simulation.
 
@@ -16,12 +16,12 @@ results converge to a bell curve and *how* to make a simulation hundreds of time
 
 | Where | Open | Runs code? | GPU | You need |
 | --- | --- | :---: | --- | --- |
-| **Google Colab** | [open](https://colab.research.google.com/github/statmike/teach/blob/main/python-overview.ipynb) | ✅ | ✅ free T4, **already selected** | a Google account |
-| **Colab Enterprise** (Vertex AI) | [open](https://console.cloud.google.com/vertex-ai/colab/import/https:%2F%2Fraw.githubusercontent.com%2Fstatmike%2Fteach%2Fmain%2Fpython-overview.ipynb) | ✅ | whatever its runtime template has | a GCP project with billing |
-| **Vertex AI Workbench** | [open](https://console.cloud.google.com/vertex-ai/workbench/deploy-notebook?download_url=https://raw.githubusercontent.com/statmike/teach/main/python-overview.ipynb) | ✅ | whatever the instance has | a GCP project with billing |
+| **Google Colab** | [open](https://colab.research.google.com/github/statmike/teaching-python/blob/main/python-overview.ipynb) | ✅ | ✅ free T4, **already selected** | a Google account |
+| **Colab Enterprise** (Vertex AI) | [open](https://console.cloud.google.com/vertex-ai/colab/import/https:%2F%2Fraw.githubusercontent.com%2Fstatmike%2Fteaching-python%2Fmain%2Fpython-overview.ipynb) | ✅ | whatever its runtime template has | a GCP project with billing |
+| **Vertex AI Workbench** | [open](https://console.cloud.google.com/vertex-ai/workbench/deploy-notebook?download_url=https://raw.githubusercontent.com/statmike/teaching-python/main/python-overview.ipynb) | ✅ | whatever the instance has | a GCP project with billing |
 | **Your own computer** | [Run it locally](#run-it-locally) | ✅ | your own card, if any | uv |
-| **GitHub** | [view](https://github.com/statmike/teach/blob/main/python-overview.ipynb) | ❌ | — | nothing |
-| **nbviewer** | [view](https://nbviewer.org/github/statmike/teach/blob/main/python-overview.ipynb) | ❌ | — | nothing |
+| **GitHub** | [view](https://github.com/statmike/teaching-python/blob/main/python-overview.ipynb) | ❌ | — | nothing |
+| **nbviewer** | [view](https://nbviewer.org/github/statmike/teaching-python/blob/main/python-overview.ipynb) | ❌ | — | nothing |
 
 **Teaching a class, on a Windows laptop, or just trying it out? Use Colab** — nothing to install,
 ~2 minutes to first run, and every laptop in the room gets the same machine. **Teaching from it
@@ -63,7 +63,7 @@ instance you attach, and ignore the metadata.
 
 ## Run it on Colab
 
-1. [Open the notebook in Colab](https://colab.research.google.com/github/statmike/teach/blob/main/python-overview.ipynb).
+1. [Open the notebook in Colab](https://colab.research.google.com/github/statmike/teaching-python/blob/main/python-overview.ipynb).
 2. **Runtime → Run all.**
 
 That's it — **no runtime change needed.** The notebook asks for a T4 in its own metadata, so
@@ -91,11 +91,11 @@ you.
 First, get the files:
 
 ```
-git clone https://github.com/statmike/teach.git
-cd teach
+git clone https://github.com/statmike/teaching-python.git
+cd teaching-python
 ```
 
-(No git? [Download the ZIP](https://github.com/statmike/teach/archive/refs/heads/main.zip),
+(No git? [Download the ZIP](https://github.com/statmike/teaching-python/archive/refs/heads/main.zip),
 unpack it, and `cd` into the folder.)
 
 **Already have `uv`?** The rest is one line:
@@ -181,7 +181,7 @@ terminal picks up the PATH from your shell profile, which the installer already 
 
 ### Step 2 — Install the project
 
-From inside the `teach/` folder:
+From inside the `teaching-python/` folder:
 
 ```
 uv sync
@@ -410,8 +410,8 @@ Windows; JAX's Linux CUDA build works there against your existing Windows NVIDIA
 
 5. Copy the project into the Linux filesystem. Your Windows drives are mounted under `/mnt/c`:
    ```bash
-   cp -r /mnt/c/Users/<you>/path/to/teach ~/teach
-   cd ~/teach
+   cp -r /mnt/c/Users/<you>/path/to/teaching-python ~/teaching-python
+   cd ~/teaching-python
    ```
    (Copy it rather than working from `/mnt/c` — cross-filesystem access is much slower.)
 
@@ -483,6 +483,7 @@ at all.
 | `.python-version` | pins Python 3.13, which uv installs for you |
 | `coin_worker.py` | **generated** by the notebook for the parallel section; git-ignored |
 | `.gitignore` | keeps the generated file, `.venv/` and caches out of git |
+| `LICENSE` | Apache License 2.0 |
 
 Task shortcuts live under `[tool.taskipy.tasks]` and run as `uv run task <name>`:
 
@@ -492,3 +493,10 @@ Task shortcuts live under `[tool.taskipy.tasks]` and run as `uv run task <name>`
 
 There are no `requirements.txt` files to generate or keep in sync — uv manages everything from
 `uv.lock`.
+
+---
+
+## License
+
+[Apache License 2.0](LICENSE). Use it, fork it, teach from it, change it — commercially or not.
+Keep the notice and state what you changed.
