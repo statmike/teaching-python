@@ -19,7 +19,7 @@ results converge to a bell curve and *how* to make a simulation hundreds of time
 | **Google Colab** | [open](https://colab.research.google.com/github/statmike/teaching-python/blob/main/python-overview.ipynb) | ✅ | ✅ free T4, **already selected** | a Google account |
 | **Colab Enterprise** (Vertex AI) | [open](https://console.cloud.google.com/vertex-ai/colab/import/https:%2F%2Fraw.githubusercontent.com%2Fstatmike%2Fteaching-python%2Fmain%2Fpython-overview.ipynb) | ✅ | whatever its runtime template has | a GCP project with billing |
 | **Vertex AI Workbench** | [open](https://console.cloud.google.com/vertex-ai/workbench/deploy-notebook?download_url=https://raw.githubusercontent.com/statmike/teaching-python/main/python-overview.ipynb) | ✅ | whatever the instance has | a GCP project with billing |
-| **Your own computer** | [Run it locally](#run-it-locally) | ✅ | your own card, if any | uv |
+| **Your own computer** | [Run it locally](#run-it-locally) | ✅ | your own card, if any | git + uv |
 | **GitHub** | [view](https://github.com/statmike/teaching-python/blob/main/python-overview.ipynb) | ❌ | — | nothing |
 | **nbviewer** | [view](https://nbviewer.org/github/statmike/teaching-python/blob/main/python-overview.ipynb) | ❌ | — | nothing |
 
@@ -88,26 +88,62 @@ Colab is also the practical answer for a **Windows machine with an NVIDIA card**
 add GPU support). You do *not* need Python installed — uv fetches the right version (3.13) for
 you.
 
-First, get the files:
+Five steps: get the files, install uv, install the project, register the kernel, open the
+notebook. Each ends with a check — don't move on until it passes. If one fails, see
+[Troubleshooting](#troubleshooting).
+
+> **Going to use WSL2 for an NVIDIA GPU on Windows?** Don't run these steps on Windows first.
+> All five have to happen *inside* Ubuntu, in their own clone — jump to
+> [Windows + NVIDIA](#will-i-get-a-gpu) and follow that instead.
+
+**Already have git and `uv`?** The whole thing is:
+
+```
+git clone https://github.com/statmike/teaching-python.git
+cd teaching-python
+uv sync && uv run task kernel && uv run --with jupyterlab jupyter lab
+```
+
+### Step 1 — Get the files
+
+The notebook lives on GitHub, so the first job is getting a copy onto your machine. That needs
+**git**:
+
+```
+git --version
+```
+
+<details>
+<summary>Prints a version? Move on. Otherwise — install git</summary>
+
+- **Windows** — `winget install --id Git.Git -e`, then **open a new terminal** (same PATH trap
+  as uv, below). Or run the installer from [git-scm.com](https://git-scm.com/download/win) and
+  accept every default.
+- **macOS** — typing `git --version` itself offers to install Apple's command line tools.
+  Accept, wait for it, then run it again.
+- **Linux** — `sudo apt install git` on Debian/Ubuntu, or your distribution's equivalent.
+
+</details>
+
+Then clone the repo and move into it:
 
 ```
 git clone https://github.com/statmike/teaching-python.git
 cd teaching-python
 ```
 
-(No git? [Download the ZIP](https://github.com/statmike/teaching-python/archive/refs/heads/main.zip),
-unpack it, and `cd` into the folder.)
+That makes a `teaching-python` folder wherever you ran it — your home folder is a fine place.
+**Every command from here on runs from inside that folder.** Later, `git pull` in it gets you
+the newest version of the notebook.
 
-**Already have `uv`?** The rest is one line:
+> **No git, and don't want it?**
+> [Download the ZIP](https://github.com/statmike/teaching-python/archive/refs/heads/main.zip),
+> unpack it, and `cd` into the unpacked folder. Everything else is identical — you just have to
+> fetch a new ZIP by hand to get updates.
 
-```
-uv sync && uv run task kernel && uv run --with jupyterlab jupyter lab
-```
+✓ **Check:** `ls` (macOS/Linux) or `dir` (Windows) lists `python-overview.ipynb`.
 
-Otherwise, work through the steps below. Each ends with a check — don't move on until it
-passes. If one fails, see [Troubleshooting](#troubleshooting).
-
-### Step 1 — Install `uv`
+### Step 2 — Install `uv`
 
 [uv](https://docs.astral.sh/uv/) manages the Python version and every package for this project.
 
@@ -115,7 +151,7 @@ passes. If one fails, see [Troubleshooting](#troubleshooting).
 uv --version
 ```
 
-Prints a version? **Skip to Step 2.** Says "command not found" or "not recognized"? Install it
+Prints a version? **Skip to Step 3.** Says "command not found" or "not recognized"? Install it
 from your section below.
 
 > **The one thing that trips everyone up.** The installer adds a folder to your PATH — but **a
@@ -179,9 +215,9 @@ terminal picks up the PATH from your shell profile, which the installer already 
 
 </details>
 
-### Step 2 — Install the project
+### Step 3 — Install the project
 
-From inside the `teaching-python/` folder:
+From inside the `teaching-python/` folder you cloned in Step 1:
 
 ```
 uv sync
@@ -201,7 +237,7 @@ see [Will I get a GPU?](#will-i-get-a-gpu).
 uv run python -c "import numpy, matplotlib, jax; print('ok', jax.__version__)"
 ```
 
-### Step 3 — Register the Jupyter kernel
+### Step 4 — Register the Jupyter kernel
 
 This makes the project's environment selectable inside Jupyter or VS Code as
 **Python (teach)**:
@@ -227,30 +263,55 @@ quote character and `(` `)` *are* special — a single-quoted display name gets 
 produces a syntax error. (This bug was in this repo's task definition; it's fixed, but you may
 hit it writing your own.)
 
-`No module named ipykernel` means Step 2 ran without its dev group. `uv sync` includes the dev
+`No module named ipykernel` means Step 3 ran without its dev group. `uv sync` includes the dev
 group by default, so this only happens if `--no-dev` or `--no-default-groups` was passed —
 re-run plain `uv sync`.
 
 </details>
 
-### Step 4 — Open the notebook
+<a id="open-the-notebook"></a>
 
-Two ways; both use the kernel you just registered, so pick whichever you like.
+### Step 5 — Open the notebook
 
-**In your browser** — no other app to install:
+Two ways in, and **you only need one.** Both run the same notebook on the same **Python (teach)**
+kernel you just registered — the only difference is where it appears.
+
+| | **A · VS Code** | **B · JupyterLab** |
+| --- | --- | --- |
+| Pick this if | you already use VS Code | you'd rather not install an editor |
+| Extra download | the Python + Jupyter extensions | ~100 MB, cached after the first run |
+| It opens in | VS Code | your browser |
+| Terminal | nothing left running | one window stays running |
+
+#### Path A — VS Code
+
+1. Open the `teaching-python` folder — **File → Open Folder**, or type `code .` in the terminal
+   you're already in.
+2. If VS Code offers the **Python** and **Jupyter** extensions, install them.
+3. Open `python-overview.ipynb`.
+4. Click the kernel selector at the **top right** and choose **Python (teach)**.
+
+Nothing to run in the terminal — VS Code starts the kernel itself.
+
+> **Python (teach)** not in the list? Try **Select Another Kernel → Jupyter Kernel**. Still
+> missing, reload the window: Ctrl+Shift+P → *Developer: Reload Window*. VS Code caches the
+> kernel list and won't notice Step 4 until it re-reads it.
+
+#### Path B — JupyterLab in your browser
 
 ```
 uv run --with jupyterlab jupyter lab
 ```
 
-Then click `python-overview.ipynb` and choose the **Python (teach)** kernel.
+That prints a `http://localhost:8888/...` link and usually opens it for you. Click
+`python-overview.ipynb` in the file list on the left, and pick **Python (teach)** if asked.
+
+**Leave that terminal open** — it *is* the notebook server, and closing it stops the notebook.
+Ctrl-C twice in it when you're done.
 
 > `--with jupyterlab` layers JupyterLab on top of this project for the length of that one
 > command. It downloads about 100 MB the first time and is cached after that. It's kept out of
 > `uv sync` because VS Code and Colab users don't need it.
-
-**In VS Code** — if you already have it: open this folder, open `python-overview.ipynb`, and
-pick **Python (teach)** from the kernel selector in the top right. Nothing else to run.
 
 ✓ **Final check:** **Run All**, top to bottom, then read the hardware report. It is printed by
 the cell headed `PLUMBING - SCAFFOLDING FOR THE RACE`, at the start of the **Make Iterations Faster**
@@ -386,42 +447,110 @@ Windows laptops this is the only sane option.
 **Option B — WSL2 (Windows Subsystem for Linux), ~30 minutes.** Runs a real Ubuntu inside
 Windows; JAX's Linux CUDA build works there against your existing Windows NVIDIA driver.
 
-1. In **PowerShell as Administrator**:
-   ```powershell
-   wsl --install
-   ```
-   Reboot when asked. This installs Ubuntu and has you set a Linux username and password.
+> **Ubuntu is a separate computer that happens to live inside Windows.** Nothing installed on
+> the Windows side — not git, not uv, not the project folder — carries across. You install
+> everything a second time, inside Ubuntu. That feels wasteful and is correct.
+>
+> **If you already cloned and ran `uv sync` on Windows, leave that folder exactly where it is.**
+> You are about to make a second, independent clone inside Linux. Do not copy the Windows one
+> across (step 5 explains why).
 
-2. Keep your **normal Windows NVIDIA driver**. Do *not* install a Linux GPU driver inside WSL —
-   the Windows driver already exposes the card, and a second one breaks it.
+**1 · Install WSL — from an Administrator PowerShell**
 
-3. Open the **Ubuntu** terminal (Start menu → Ubuntu) and confirm the card is visible:
-   ```bash
-   nvidia-smi
-   ```
-   No card? Update your Windows NVIDIA driver and reboot.
+Right-click the **Start** button → **Terminal (Admin)** (or *Windows PowerShell (Admin)*), and
+answer yes to the UAC prompt.
 
-4. Install uv *inside Ubuntu* — your Windows install doesn't carry over:
-   ```bash
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   source $HOME/.local/bin/env
-   uv --version
-   ```
+```powershell
+wsl --install
+```
 
-5. Copy the project into the Linux filesystem. Your Windows drives are mounted under `/mnt/c`:
-   ```bash
-   cp -r /mnt/c/Users/<you>/path/to/teaching-python ~/teaching-python
-   cd ~/teaching-python
-   ```
-   (Copy it rather than working from `/mnt/c` — cross-filesystem access is much slower.)
+> ⚠️ **It has to be an *Administrator* terminal.** Anything else — a normal PowerShell, or the
+> terminal built into VS Code — starts the install, gets partway, and stops without finishing
+> and without clearly saying why. If `wsl --install` seems to do nothing much, this is why.
 
-6. Install with the GPU extra and launch:
-   ```bash
-   uv sync --extra gpu-nvidia
-   uv run task kernel
-   uv run --with jupyterlab jupyter lab
-   ```
-   Ctrl-click the `http://localhost:8888/...` link; it opens in your Windows browser.
+Reboot when it asks.
+
+**2 · Let Ubuntu finish, and create your Linux user**
+
+After the reboot Ubuntu completes its own setup and asks you to **create a username and
+password**. These are brand new and have nothing to do with your Windows login. The password is
+what `sudo` will ask for later, there's no recovery for it, and **the screen shows nothing while
+you type it** — that's normal, keep going.
+
+A few things appear around this point, and it's not obvious they're all the same Ubuntu:
+
+- The PowerShell window you started in **drops into the Ubuntu prompt**. That's a real Ubuntu
+  shell — you can just keep working in it.
+- An **Ubuntu** entry appears in the Start menu. It opens *the same* Ubuntu.
+- A setup/welcome page may pop up with extra options.
+
+**Use whichever terminal you like — there is no difference.** If that welcome page offers the
+**VS Code WSL extension**, take it; step 7 uses it.
+
+**3 · Check the GPU is visible from inside Ubuntu**
+
+```bash
+nvidia-smi
+```
+
+Keep your **normal Windows NVIDIA driver**, and do *not* install a Linux GPU driver inside WSL —
+the Windows driver already exposes the card, and a second one breaks it. Nothing listed? Update
+the Windows driver and reboot.
+
+**4 · Install git and uv, inside Ubuntu**
+
+```bash
+sudo apt update && sudo apt install -y git
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.local/bin/env
+uv --version
+```
+
+`uv --version` must print something before you continue. **`uv: command not found` here is the
+same PATH trap as on Windows** — the installer put uv somewhere this already-open shell doesn't
+know about yet. Re-run the `source` line in the window you're actually typing in, or open a new
+Ubuntu terminal.
+
+**5 · Clone a fresh copy into the Linux filesystem**
+
+```bash
+cd ~
+git clone https://github.com/statmike/teaching-python.git
+cd teaching-python
+```
+
+> **Don't copy your Windows folder over, and don't work from `/mnt/c`.** Your Windows drives
+> show up inside Ubuntu at `/mnt/c`, so it looks like you can `cd` straight there and carry on.
+> Two reasons not to: every file access crosses the Windows/Linux boundary and is dramatically
+> slower, and that folder already contains a `.venv/` full of **Windows** executables Linux
+> cannot run. `~` is Ubuntu's own home directory, and a fresh clone there has none of that
+> baggage. Disk is cheap; two clones is the easy answer.
+>
+> Already copied it? `rm -rf .venv` and re-run step 6 — uv rebuilds it for Linux.
+
+**6 · Install with the GPU extra and register the kernel**
+
+```bash
+uv sync --extra gpu-nvidia
+uv run task kernel
+```
+
+**7 · Open the notebook**
+
+The same two paths as [Step 5](#open-the-notebook), each with one WSL wrinkle:
+
+- **VS Code** — install the **WSL** extension in your *Windows* VS Code (this is the one the
+  setup page offers). Then, from the Ubuntu prompt in your project folder:
+  ```bash
+  code .
+  ```
+  VS Code opens on Windows but runs everything inside Linux, and **Python (teach)** shows up in
+  the kernel picker. This is the nicest way to use WSL.
+- **JupyterLab** —
+  ```bash
+  uv run --with jupyterlab jupyter lab
+  ```
+  Ctrl-click the `http://localhost:8888/...` link; it opens in your Windows browser.
 
 The scaffolding cell should now name your card under `GPU:`, and the GPU section will run.
 
@@ -461,12 +590,17 @@ at all.
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
+| `git: command not found` / `not recognized` | git isn't installed | Step 1's install box, or skip git and [download the ZIP](https://github.com/statmike/teaching-python/archive/refs/heads/main.zip) |
 | `uv: command not found` / `not recognized`, right after installing | The terminal was already open when PATH changed | Open a new one, or `source $HOME/.local/bin/env` (macOS/Linux) / the `$env:Path` line (Windows) |
+| `wsl --install` runs but never finishes | Not an elevated terminal — a normal PowerShell *or the VS Code terminal* stalls partway, quietly | Right-click Start → **Terminal (Admin)**, run it again |
+| `uv: command not found` **inside Ubuntu**, just after installing it | Same PATH trap, new operating system | `source $HOME/.local/bin/env`, or open a fresh Ubuntu terminal |
+| Inside WSL, uv is very slow or misbehaves in the project folder | You're working under `/mnt/c` — that's the Windows disk seen from Linux, and its `.venv/` holds Windows binaries | `cd ~` and clone a fresh copy there. If you copied the folder, `rm -rf .venv` first |
 | `No module named ipykernel` | Synced without the dev group | Re-run plain `uv sync` |
 | `uv run task kernel` fails on Windows with a syntax error | Single quotes around a name containing `( )` in `cmd.exe` | Run the `ipykernel install` command directly, with **double** quotes |
 | **Python (teach)** kernel isn't offered | Not registered, or the editor predates it | `uv run task kernel`, then reload the window |
 | `GPU: none found`, but you have an NVIDIA card on Windows | No native-Windows CUDA JAX exists | See [Will I get a GPU?](#will-i-get-a-gpu) |
 | `GPU: ... is installed, but JAX's CUDA build is not` (Linux) | Synced without the extra | `uv sync --extra gpu-nvidia` |
+| `git pull` reports a conflict in `python-overview.ipynb` | You ran the notebook, so your saved outputs differ from the committed ones | `git checkout python-overview.ipynb` to discard your run, then pull again. (Nothing is lost — re-running regenerates it) |
 | A cell fails with a `NameError` about a timing variable | Cells were run out of order | Run All, top to bottom |
 | The parallel section is *slower* than the vectorized one | A real result on a many-core `spawn` machine | Nothing to fix — the notebook explains it and the lesson still lands |
 | Timings differ a lot between runs | Shared or busy machine | Expected. The side experiments use best-of-N; the headline timings are single-shot on purpose |
